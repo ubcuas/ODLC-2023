@@ -4,7 +4,7 @@ from PIL import ImageFont, ImageDraw, Image
 import os
 
 
-def placeShape(img, shape, coord, size, color):
+def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
     if shape == "circle":
         return cv2.circle(img, coord, int(size / 2), color, cv2.FILLED)
     elif shape == "semicircle":
@@ -87,8 +87,36 @@ def placeShape(img, shape, coord, size, color):
 
         # Draw the star on the image
         return cv2.fillPoly(img, [vertices], color=color)
-
-
+    elif shape == "cross":
+        vertices = np.array(
+            [
+                (coord[0] - (size / 2) * cross_corner, coord[1] - size / 2),
+                (coord[0] + (size / 2) * cross_corner, coord[1] - size / 2),
+                (
+                    coord[0] + (size / 2) * cross_corner,
+                    coord[1] - (size / 2) * cross_corner,
+                ),
+                (coord[0] + size / 2, coord[1] - (size / 2) * cross_corner),
+                (coord[0] + size / 2, coord[1] + (size / 2) * cross_corner),
+                (
+                    coord[0] + (size / 2) * cross_corner,
+                    coord[1] + (size / 2) * cross_corner,
+                ),
+                (coord[0] + (size / 2) * cross_corner, coord[1] + size / 2),
+                (coord[0] - (size / 2) * cross_corner, coord[1] + size / 2),
+                (
+                    coord[0] - (size / 2) * cross_corner,
+                    coord[1] + (size / 2) * cross_corner,
+                ),
+                (coord[0] - size / 2, coord[1] + (size / 2) * cross_corner),
+                (coord[0] - size / 2, coord[1] - (size / 2) * cross_corner),
+                (
+                    coord[0] - (size / 2) * cross_corner,
+                    coord[1] - (size / 2) * cross_corner,
+                ),
+            ], np.int32
+        )
+        return cv2.fillPoly(img, [vertices], color=color)
 
 
 def putText(img, text, coord, size):
@@ -102,7 +130,7 @@ def putText(img, text, coord, size):
 
     # use a truetype font
     # font = ImageFont.truetype("Tahoma Regular font.ttf", 100)
-    font = ImageFont.truetype(".resources/fonts/arial.ttf", 75)
+    font = ImageFont.truetype("src/model/resources/fonts/arial.ttf", 75)
     # font = ImageFont.load_default()
 
     # Draw the text
@@ -112,21 +140,21 @@ def putText(img, text, coord, size):
         text,
         font=font,
         fill=(255, 255, 255, 255),
-        anchor="mm"
+        anchor="mm",
     )
 
     # Get back the image to OpenCV
     return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
 
+
 def createImage(bg_path, shape, coord, size, color, text):
     """
     create training data image
     """
-    img = Image.open(bg_path)
-    img = np.asarray(img)
+    img = cv2.imread(bg_path)
     img = placeShape(img, shape, coord, size, color)
     img = putText(img, text, coord, size)
-    img = cv2.GaussianBlur(img, (7,7), 0)
+    img = cv2.GaussianBlur(img, (7, 7), 0)
     return img
 
 
@@ -134,8 +162,7 @@ size = 100
 coord = (300, 150)
 color = (255, 0, 0)
 bg_path = "src/model/resources/backgrounds/pavement3.jpg"
-img = createImage(bg_path, "pentagon", coord, size, color, "A")
-img = Image.fromarray(np.uint8(img))
+img = createImage(bg_path, "cross", coord, size, color, "A")
 
-img.show()
+cv2.imshow("img", img)
 cv2.waitKey(0)
