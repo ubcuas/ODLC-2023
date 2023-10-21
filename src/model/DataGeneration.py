@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 from PIL import ImageFont, ImageDraw, Image
+import os
 
 
-def create_img(img, shape, coord, size, color):
+def placeShape(img, shape, coord, size, color):
     if shape == "circle":
         return cv2.circle(img, coord, int(size / 2), color, cv2.FILLED)
     elif shape == "semicircle":
@@ -38,7 +39,7 @@ def create_img(img, shape, coord, size, color):
         return cv2.fillPoly(img, [triangle_pts], color)
     elif shape == "rectangle":
         return cv2.rectangle(
-            background_img,
+            img,
             (int(coord[0] - (size / 2)), int(coord[1] - (size / 2))),
             (int(coord[0] + (size / 2)), int(coord[1] + (size / 2))),
             color,
@@ -117,20 +118,24 @@ def putText(img, text, coord, size):
     # Get back the image to OpenCV
     return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
 
-background_img = np.ones((600, 800, 3), np.uint8) * 255
-size = 100
-coord = (200, 300)
-# background_img = cv2.rectangle(
-#     background_img,
-#     (int(coord[0] - (size / 2)), int(coord[1] - (size / 2))),
-#     (int(coord[0] + (size / 2)), int(coord[1] + (size / 2))),
-#     (0, 0, 0),
-#     3,
-# )
-background_img = create_img(background_img, "pentagon", coord, size, (0, 0, 255))
-background_img = putText(background_img, "C", coord, size)
-# background_img = create_img(background_img, "semicircle", coord, size, (0, 0, 255))
-# background_img = create_img(background_img, "circle", coord, size, (0, 0, 255))
+def createImage(bg_path, shape, coord, size, color, text):
+    """
+    create training data image
+    """
+    img = Image.open(bg_path)
+    img = np.asarray(img)
+    img = placeShape(img, shape, coord, size, color)
+    img = putText(img, text, coord, size)
+    img = cv2.GaussianBlur(img, (7,7), 0)
+    return img
 
-cv2.imshow("img", background_img)
+
+size = 100
+coord = (300, 150)
+color = (255, 0, 0)
+bg_path = "src/model/resources/backgrounds/pavement3.jpg"
+img = createImage(bg_path, "pentagon", coord, size, color, "A")
+img = Image.fromarray(np.uint8(img))
+
+img.show()
 cv2.waitKey(0)
