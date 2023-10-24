@@ -1,17 +1,14 @@
 import cv2
 import numpy as np
-import copy
-import time
+from PIL import ImageFont, ImageDraw, Image
+import os
 
 
 def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
-    fontHeight = 0
     if shape == "circle":
-        fontHeight = size
         return cv2.circle(img, coord, int(size / 2), color, cv2.FILLED)
     elif shape == "semicircle":
         radius = int(size / 2)
-        fontHeight = radius
         axes = (radius, radius)
         angle = 0
         startAngle = 180
@@ -22,7 +19,6 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
         )
     elif shape == "quarter circle":
         radius = size
-        fontHeight = size
         axes = (radius, radius)
         angle = 0
         startAngle = 180
@@ -32,7 +28,6 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
             img, center, axes, angle, startAngle, endAngle, color, cv2.FILLED
         )
     elif shape == "triangle":
-        fontHeight = size
         triangle_pts = np.array(
             [
                 (int(coord[0] - (size / 2)), int(coord[1] + (size / 2))),
@@ -43,7 +38,6 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
         )
         return cv2.fillPoly(img, [triangle_pts], color)
     elif shape == "rectangle":
-        fontHeight = size
         return cv2.rectangle(
             img,
             (int(coord[0] - (size / 2)), int(coord[1] - (size / 2))),
@@ -52,7 +46,6 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
             cv2.FILLED,
         )
     elif shape == "pentagon":
-        fontHeight = size
         # Calculate the coordinates of the pentagon vertices
         vertices = np.array(
             [
@@ -68,7 +61,6 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
         # Draw the pentagon on the image
         return cv2.fillPoly(img, [vertices], color=color)
     elif shape == "star":
-        fontHeight = size
         outter_vertices = np.array(
             [
                 [
@@ -96,7 +88,6 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
         # Draw the star on the image
         return cv2.fillPoly(img, [vertices], color=color)
     elif shape == "cross":
-        fontHeight = size
         vertices = np.array(
             [
                 (coord[0] - (size / 2) * cross_corner, coord[1] - size / 2),
@@ -128,31 +119,42 @@ def placeShape(img, shape, coord, size, color, cross_corner = 0.5):
         return cv2.fillPoly(img, [vertices], color=color)
 
 
-def putText(img, text, coord, fontHeight):
-    ft = cv2.freetype.createFreeType2()
+def putText(img, text, coord, size):
+    # Convert the image to RGB (OpenCV uses BGR)
+    cv2_im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    ft.loadFontData(fontFileName='src/model/resources/fonts/arial.ttf',
-                idx=0)
-    ft.putText(img=img,
-            text=text,
-            org=(coord[0], coord[1] - int(fontHeight/2)),
-            fontHeight=fontHeight,
-            color=(255, 255, 255),
-            thickness=-1,
-            line_type=cv2.LINE_AA,
-            bottomLeftOrigin=False)
+    # Pass the image to PIL
+    pil_im = Image.fromarray(cv2_im_rgb)
 
-    return img
+    draw = ImageDraw.Draw(pil_im)
+
+    # use a truetype font
+    # font = ImageFont.truetype("Tahoma Regular font.ttf", 100)
+    font = ImageFont.truetype("src/model/resources/fonts/arial.ttf", 75)
+    # font = ImageFont.load_default()
+
+    # Draw the text
+    draw.text(
+        # (coord[0] - (size / 2), coord[1] - (size / 2)),
+        coord,
+        text,
+        font=font,
+        fill=(255, 255, 255, 255),
+        anchor="mm",
+    )
+
+    # Get back the image to OpenCV
+    return cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
 
 
-def createImage(bg_img, shape, coord, size, color, text):
+def createImage(bg_path, shape, coord, size, color, text):
     """
     create training data image
     """
-    img = copy.deepcopy(bg_img)
+    img = cv2.imread(bg_path)
     img = placeShape(img, shape, coord, size, color)
     img = putText(img, text, coord, size)
-    # img = cv2.GaussianBlur(img, (7, 7), 0)
+    img = cv2.GaussianBlur(img, (7, 7), 0)
     return img
 
 
@@ -160,12 +162,7 @@ size = 100
 coord = (300, 150)
 color = (255, 0, 0)
 bg_path = "src/model/resources/backgrounds/pavement3.jpg"
-bg_img = cv2.imread(bg_path)
-t = time.time()
-shape_list = ["circle", "semicircle", "quarter circle", "triangle", "rectangle", "pentagon", "star", "cross"]
-for shape in shape_list:
-    img = createImage(bg_img, shape, coord, size, color, "A")
-    cv2.imwrite(f"output/{shape}.jpg", img)
-print(time.time() - t)
-# cv2.imshow("img", img)
-# cv2.waitKey(0)
+img = createImage(bg_path, "cross", coord, size, color, "A")
+
+cv2.imshow("img", img)
+cv2.waitKey(0)
