@@ -186,38 +186,41 @@ def addLabel(highest, lowest, leftmost, rightmost, color, shape):
     label.close
     
     
-if __name__ == "__main__":
+def main():
     # creates images with different shapes and colors
     
     # colors
-    g_yellow = ["yellow", [0, 255, 255]]
-    g_white = ["white", [255,255,255]]
-    g_black = ["black", [0,0,0]]
-    g_red = ["red", [0,0, 255]]
-    g_blue = ["blue", [255,0,0]]
-    g_green = ["green", [0,128,0]]
-    g_purple = ["purple", [128,0,128]]
-    g_brown = ["brown", [0, 75, 150]]
-    g_orange = ["orange", [0,165,255]]
-    g_colors = [g_yellow, g_white, g_black, g_red, g_blue, g_green, g_purple, g_brown, g_orange]
+    yellow = ["yellow", [0, 255, 255]]
+    white = ["white", [255,255,255]]
+    black = ["black", [0,0,0]]
+    red = ["red", [0,0, 255]]
+    blue = ["blue", [255,0,0]]
+    green = ["green", [0,128,0]]
+    purple = ["purple", [128,0,128]]
+    brown = ["brown", [0, 75, 150]]
+    orange = ["orange", [0,165,255]]
+    colors = [yellow, white, black, red, blue, green, purple, brown, orange]
     
     # shapes
-    g_shapes = ["triangle","rectangle","pentagon", "star"] # TODO: "circle", "semicircle", "quarter circle"
+    shapes = ["triangle","rectangle","pentagon", "star"] # TODO: "circle", "semicircle", "quarter circle"
     
-    g_size = 100  # size of the shape
-    g_background_path = "./src/model/resources/backgrounds/pavement3.jpg"
-    g_img = Image.open(g_background_path)
-    g_img = np.asarray(g_img)
+    size = 100  # size of the shape
+    background_path = "./src/model/resources/backgrounds/pavement3.jpg"
+    img = Image.open(background_path)
+    img = np.asarray(img)
     
     # initialize directory
     os.chdir("./training_datasets/train/images")
     
-    for g_color in g_colors:
-        for g_shape in g_shapes:
-            coord = (random.randint(0, np.size(g_img, 1)), random.randint(0, np.size(g_img, 0)))
+    for color in colors:
+        for shape in shapes:
+            coord = (random.randint(0, np.size(img, 1)), random.randint(0, np.size(img, 0)))
             print("center of the shape: ", coord)
-            g_img_with_shape = createImage(g_img, g_shape, coord, g_size, g_color, "A")  
-            # g_img_with_shape = Image.fromarray(np.uint8(g_img_with_shape))
-            # g_img_with_shape.show()  
+            img_with_shape = createImage(img, shape, coord, size, color, "A")  
+            # img_with_shape = Image.fromarray(np.uint8(img_with_shape))
+            # img_with_shape.show()  
     
     cv2.waitKey(0)
+
+if __name__ == "__main__":
+    main()
