@@ -1,25 +1,11 @@
 import cv2
 import numpy as np
-import copy
-import time
 from utils.drawobject import draw_object
+from utils.saveImgLabel import saveImageAndLabel
 import random
 import os
-
-
-
-def addLabel(highest, lowest, leftmost, rightmost, color, shape):
-    # add labels
-    label = open(str(color) + "_" + str(shape) + ".txt", "w")
-    height = lowest - highest
-    width = rightmost - leftmost
-    y_center = (lowest + highest)/2
-    x_center = (rightmost + leftmost)/2
-    label.write("0 " + x_center.astype(str) + " " + y_center.astype(str) + " " + width.astype(str) + " " + height.astype(str))
-    label.close
     
-    
-def main():
+def dataGeneration():
     # creates images with different shapes and colors
     
     # colors
@@ -42,16 +28,19 @@ def main():
     img = cv2.imread(background_path)
     
     # initialize directory
-    os.chdir("./training_datasets/train/images")
+    os.chdir("./src/training/training_datasets/train/images")
     
     for color in colors:
         for shape in shapes:
             coord = (random.randint(0, np.size(img, 1)), random.randint(0, np.size(img, 0)))
             print("center of the shape: ", coord)
-            img_with_shape = draw_object(img, shape, coord, size, color[1], "A")  
+            img_with_shape, bounding_box = draw_object(img, shape, coord, size, color[1], "A")  
+            saveImageAndLabel(img_with_shape, shape, color, bounding_box)
 
-    cv2.imshow(img,img_with_shape)    
+    # cv2.imshow(img,img_with_shape)    
     cv2.waitKey(0)
 
 if __name__ == "__main__":
-    main()
+    dataGeneration()
+    
+print("end of DataGeneration")
