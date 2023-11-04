@@ -1,6 +1,4 @@
 import cv2
-import numpy as np
-from PIL import ImageFont, ImageDraw, Image
 import os
 
 def saveImageAndLabel(img, shape, color, bounding_box):
