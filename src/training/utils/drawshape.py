@@ -81,7 +81,7 @@ def draw_rectangle(img, coord, size, color):
         color,
         cv2.FILLED,
     )
-    return img, text_bbox
+    return img, text_bbox, text_bbox
 
 
 # TODO: create text_bbox
