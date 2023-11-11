@@ -25,39 +25,48 @@ def dataGeneration(bg_path: Path, output_path: Path):
     idx = 0
     total_img = 0
     # characters = string.ascii_uppercase
-    characters = ["A"]
-    print(f"Number of Image being generated: {len(background_paths) * len(cds.colors) * (len(cds.colors) - 1) * 1 * 10}")
-    for bg in background_paths:
-        print(str(bg))
-        # bg_img = cv2.imread(str(bg))
-        bg_img = cv2.imread("src/training/resources/backgrounds/pavement.jpg")
-        print(bg_img.shape)
-        for color in cds.colors:
-            for shape in cds.shapes:
-                idx = 0
+    characters = ["A", "B"]
+    print(
+        f"Number of Image being generated: {len(background_paths) * len(cds.shapes) * len(cds.colors) * (len(cds.colors) - 1) * (len(characters)) * 10}"
+    )
+    
+    for color in cds.colors:
+        for shape in cds.shapes:
+            idx = 0
+            for bg in background_paths:
+                bg_img = cv2.imread(str(bg))
                 for text_color in cds.colors:
                     if color == text_color:
                         continue
                     for char in characters:
                         img = copy.deepcopy(bg_img)
                         coord = (
-                            random.randint(int(size / 2), np.size(img, 1) - int(size / 2)),
-                            random.randint(int(size / 2), np.size(img, 0) - int(size / 2)),
+                            random.randint(
+                                int(size / 2), np.size(img, 1) - int(size / 2)
+                            ),
+                            random.randint(
+                                int(size / 2), np.size(img, 0) - int(size / 2)
+                            ),
                         )
-                        print("center of the shape: ", coord)
+                        # print("center of the shape: ", coord)
                         img_with_shape, bounding_box = draw_object(
                             img, shape, coord, size, color[1], text_color[1], char
                         )
                         aug_imgs, new_bounding_boxes = imageAugmentation(
                             img_with_shape, bounding_box
                         )
-                        print(total_img)
                         for i in range(len(aug_imgs)):
                             saveImageAndLabel(
-                                aug_imgs[i], output_path, shape, color, new_bounding_boxes[i], idx
+                                aug_imgs[i],
+                                output_path,
+                                shape,
+                                color,
+                                new_bounding_boxes[i],
+                                idx,
                             )
                             total_img += 1
                             idx += 1
+                    print(total_img)
 
     # cv2.imshow(img,img_with_shape)
     # cv2.waitKey(0)
