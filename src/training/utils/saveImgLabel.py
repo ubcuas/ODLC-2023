@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from utils.commonDataStructure import colors_dictionary, shapes_dictionary
+import utils.commonDataStructure as cds
 
 
 def saveImageAndLabel(img, shape, color, bounding_box, idx):
@@ -27,6 +27,7 @@ def addLabel(bounding_box, color, shape, idx, img_height, img_width):
     width = (bounding_box[1][0] - bounding_box[0][0])/img_width
     y_center = ((bounding_box[1][1] + bounding_box[0][1])/2)/img_height
     x_center = ((bounding_box[1][0] + bounding_box[0][0])/2)/img_width
-    label.write(str(colors_dictionary[color]) + str(shapes_dictionary[shape]) + " " + str(x_center) + " " + str(y_center) + " " + str(width) + " " + str(height))
+    name_color_shape = color + "_" + shape
+    label.write(str(cds.lookup_table.index(name_color_shape)) + " " + str(x_center) + " " + str(y_center) + " " + str(width) + " " + str(height))
     label.close
     
