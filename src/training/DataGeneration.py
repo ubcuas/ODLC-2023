@@ -39,7 +39,7 @@ def dataGeneration():
             img = copy.deepcopy(bg_img)
             coord = (random.randint(0, np.size(img, 1)), random.randint(0, np.size(img, 0)))
             print("center of the shape: ", coord)
-            img_with_shape, bounding_box = draw_object(img, shape, coord, size, color[1], "orange", "A")  
+            img_with_shape, bounding_box = draw_object(img, shape, coord, size, color[1], (0,165,255), "A")  
             aug_imgs, new_bounding_boxes = imageAugmentation(img_with_shape, bounding_box)
             for i in range(len(aug_imgs)):
                 print("i: ", i)
