@@ -20,11 +20,10 @@ def dataGeneration():
     purple = ["purple", [128,0,128]]
     brown = ["brown", [0, 75, 150]]
     orange = ["orange", [0,165,255]]
-    # colors = [yellow, white, black, red, blue, green, purple, brown, orange]
-    colors = [yellow, red]
+    colors = [yellow, white, black, red, blue, green, purple, brown, orange]
     
     # shapes
-    shapes = ["triangle", "rectangle"] # TODO: "pentagon", "star", "circle", "semicircle", "quarter circle"
+    shapes = ["triangle", "rectangle","pentagon", "star", "circle", "semicircle", "quarter circle"]
     
     size = 100  # size of the shape
     background_path = "./src/training/resources/backgrounds/pavement3.jpg"
@@ -33,8 +32,10 @@ def dataGeneration():
     # initialize directory
     os.chdir("./src/training/training_datasets/train/images")
     
+    idx = 0
     for color in colors:
         for shape in shapes:
+            idx = 0
             img = copy.deepcopy(bg_img)
             coord = (random.randint(0, np.size(img, 1)), random.randint(0, np.size(img, 0)))
             print("center of the shape: ", coord)
@@ -42,7 +43,8 @@ def dataGeneration():
             aug_imgs, new_bounding_boxes = imageAugmentation(img_with_shape, bounding_box)
             for i in range(len(aug_imgs)):
                 print("i: ", i)
-                saveImageAndLabel(aug_imgs[i], shape, color, new_bounding_boxes[i])
+                saveImageAndLabel(aug_imgs[i], shape, color, new_bounding_boxes[i],idx)
+                idx += 1
 
     # cv2.imshow(img,img_with_shape)    
     cv2.waitKey(0)

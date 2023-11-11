@@ -120,7 +120,7 @@ def imageAugmentation(image, bounding_box, display=False):
         # display
         ia.imshow(
         ia.draw_grid(
-            [key_pts_on_imgs_aug[i].draw_on_image(images_aug[i], size=7, color=(0, 0, 255)) for i in range(n)],
+            [key_pts_on_imgs_aug[i].draw_on_image(images_aug[i], size=7, color=(0, 0, 255)) for i in range(10)],
             cols=images_per_row, rows=rows
             )
         )
