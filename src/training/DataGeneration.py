@@ -24,10 +24,11 @@ def dataGeneration(bg_path: Path, output_path: Path):
 
     idx = 0
     total_img = 0
+    num_augimg_per_original = 10
     # characters = string.ascii_uppercase
     characters = ["A", "B"]
     print(
-        f"Number of Image being generated: {len(background_paths) * len(cds.shapes) * len(cds.colors) * (len(cds.colors) - 1) * (len(characters)) * 10}"
+        f"Number of Image being generated: {len(background_paths) * len(cds.shapes) * len(cds.colors) * (len(cds.colors) - 1) * (len(characters)) * num_augimg_per_original}"
     )
     
     for color in cds.colors:
@@ -54,7 +55,7 @@ def dataGeneration(bg_path: Path, output_path: Path):
                         )
                         bg_img_height, bg_img_width, channels = bg_img.shape
                         aug_imgs, new_bounding_boxes = imageAugmentation(
-                            img_with_shape, bounding_box, bg_img_height, bg_img_width)
+                            img_with_shape, bounding_box, bg_img_height, bg_img_width,num_aug_imgs=num_augimg_per_original)
                         for i in range(len(aug_imgs)):
                             saveImageAndLabel(
                                 aug_imgs[i],
