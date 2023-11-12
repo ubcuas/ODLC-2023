@@ -4,7 +4,7 @@ import math
 from imgaug.augmentables.kps import Keypoint, KeypointsOnImage
 
 
-def imageAugmentation(image, bounding_box, display=False):
+def imageAugmentation(image, bounding_box, image_height, image_width, num_aug_imgs=3, display=False):
     """
     Augments image given the bounding box with the shape and color (bounding_box).
     bounding_box format : [(top_left_x, top_left_y), (bottom_right_x, bottom_right_y)].
@@ -16,11 +16,11 @@ def imageAugmentation(image, bounding_box, display=False):
     # augmentation methods: 1. left right flip, 2. up down flip, 3. affine (scaling + rotate + up down left right tranformation + sheering)
     # 4. noise, 5. croping, 6. change color, 7. (50% of times) guassian blur, 8. change contrast, 9. make brighter or darker
     seq = iaa.Sequential([
-        iaa.Fliplr(0.5),
+        # iaa.Fliplr(0.5),
         iaa.Flipud(0.5),
         iaa.Affine(
             scale={"x": (0.9, 1.1), "y": (0.9, 1.1)},
-            rotate=(-25, 25),
+            rotate=(-15, 15),
             translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)},
             shear=(-4, 4)
         ),
@@ -46,7 +46,7 @@ def imageAugmentation(image, bounding_box, display=False):
         Keypoint(leftmost, lowest),
         Keypoint(rightmost, lowest)
     ]
-    key_pts_on_img = KeypointsOnImage(key_pts, shape=(600, 800))
+    key_pts_on_img = KeypointsOnImage(key_pts, shape=(image_height, image_width))
 
     # # get key points
     # key_pts_on_imgs = []
@@ -79,7 +79,7 @@ def imageAugmentation(image, bounding_box, display=False):
     # augment
     images_aug = [image]
     key_pts_on_imgs_aug = [key_pts_on_img]
-    for _ in range(9):
+    for _ in range(num_aug_imgs - 1):
         image_aug, key_pts_on_img_aug = seq(image=image, keypoints=key_pts_on_img)
         images_aug.append(image_aug)
         key_pts_on_imgs_aug.append(key_pts_on_img_aug)
@@ -87,11 +87,11 @@ def imageAugmentation(image, bounding_box, display=False):
     # find the highest, lowest, leftmost and rightmost points of key_pts_on_imgs_aug
     # then append to new_labels
     new_labels = []
-    for i in range(10):
+    for i in range(num_aug_imgs):
         # initialize values
-        highest = 600
+        highest = image_height
         lowest = 0
-        leftmost = 800
+        leftmost = image_width
         rightmost = 0
 
         # determine highest, lowest, leftmost and rightmost
@@ -120,7 +120,7 @@ def imageAugmentation(image, bounding_box, display=False):
         # display
         ia.imshow(
         ia.draw_grid(
-            [key_pts_on_imgs_aug[i].draw_on_image(images_aug[i], size=7, color=(0, 0, 255)) for i in range(10)],
+            [key_pts_on_imgs_aug[i].draw_on_image(images_aug[i], size=10, color=(255, 69, 0)) for i in range(num_aug_imgs)],
             cols=images_per_row, rows=rows
             )
         )

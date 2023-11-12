@@ -52,9 +52,9 @@ def dataGeneration(bg_path: Path, output_path: Path):
                         img_with_shape, bounding_box = draw_object(
                             img, shape, coord, size, color[1], text_color[1], char
                         )
+                        bg_img_height, bg_img_width, channels = bg_img.shape
                         aug_imgs, new_bounding_boxes = imageAugmentation(
-                            img_with_shape, bounding_box
-                        )
+                            img_with_shape, bounding_box, bg_img_height, bg_img_width)
                         for i in range(len(aug_imgs)):
                             saveImageAndLabel(
                                 aug_imgs[i],
@@ -76,11 +76,13 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--output", default="output/")
+    output_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./training_datasets/valid")
+    parser.add_argument("-o", "--output", default=output_path)
+    input_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./resources/backgrounds")
     parser.add_argument(
         "-i",
         "--input",
-        default="backgroud_images/",
+        default=input_path,
         help="Backgroud image folder to put object on",
     )
     args = parser.parse_args()
