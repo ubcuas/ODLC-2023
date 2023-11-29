@@ -20,9 +20,10 @@ def imageAugmentation(image, bounding_box, image_height, image_width, num_aug_im
         iaa.Flipud(0.5),
         iaa.Affine(
             scale={"x": (0.9, 1.1), "y": (0.9, 1.1)},
-            rotate=(-15, 15),
+            rotate=(-180, 180),
             translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)},
-            shear=(-4, 4)
+            shear=(-4, 4),
+            mode="edge" # this will fill in newly-created pixels using the mode specified; more info at https://imgaug.readthedocs.io/en/latest/source/api_augmenters_geometric.html
         ),
         iaa.AdditiveGaussianNoise(scale=(10, 50)),
         iaa.Crop(percent=(0, 0.1)),

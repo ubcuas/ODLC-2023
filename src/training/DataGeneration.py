@@ -5,6 +5,7 @@ from utils.saveImgLabel import saveImageAndLabel
 from utils.imageAug import imageAugmentation
 import utils.commonDataStructure as cds
 import random
+import math
 import os
 import copy
 from pathlib import Path
@@ -25,8 +26,7 @@ def dataGeneration(bg_path: Path, output_path: Path):
     idx = 0
     total_img = 0
     num_augimg_per_original = 10
-    # characters = string.ascii_uppercase
-    characters = ["A", "B"]
+    characters = cds.characters
     print(
         f"Number of Image being generated: {len(background_paths) * len(cds.shapes) * len(cds.colors) * (len(cds.colors) - 1) * (len(characters)) * num_augimg_per_original}"
     )
@@ -41,14 +41,41 @@ def dataGeneration(bg_path: Path, output_path: Path):
                         continue
                     for char in characters:
                         img = copy.deepcopy(bg_img)
-                        coord = (
-                            random.randint(
-                                int(size / 2), np.size(img, 1) - int(size / 2)
-                            ),
-                            random.randint(
-                                int(size / 2), np.size(img, 0) - int(size / 2)
-                            ),
-                        )
+                        
+                        # # old coord generation code
+                        # coord = (
+                        #     random.randint(
+                        #         int(size / 2), np.size(img, 1) - int(size / 2)
+                        #     ),
+                        #     random.randint(
+                        #         int(size / 2), np.size(img, 0) - int(size / 2)
+                        #     ),
+                        # )
+
+                        # generates coord so that it lies within a circle centered at the middle of the image
+                        # this makes it so that the shape won't go out-of-bounds if the image is rotated
+
+                        # radius of the circle
+                        if np.size(img, 1) >= np.size(img, 0):
+                            circle_r = (np.size(img, 0) - size)/2
+                        else:
+                            circle_r = (np.size(img, 1) - size)/2
+                        
+                        # center of the circle (x, y)
+                        circle_x = np.size(img, 1)/2
+                        circle_y = np.size(img, 0)/2
+
+                        # random angle
+                        alpha = 2 * math.pi * random.random()
+
+                        # random radius
+                        r = circle_r * math.sqrt(random.random())
+
+                        # calculating coordinates
+                        x_coord = r * math.cos(alpha) + circle_x
+                        y_coord = r * math.sin(alpha) + circle_y
+                        coord = (int(x_coord), int(y_coord))
+
                         # print("center of the shape: ", coord)
                         img_with_shape, bounding_box = draw_object(
                             img, shape, coord, size, color[1], text_color[1], char
