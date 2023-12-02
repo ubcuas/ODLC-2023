@@ -1,77 +1,70 @@
-test: test\images
-train: train\images
-val: valid\images
+test: test/images
+train: train/images
+val: valid/images
 
 names:
-  0: yellow_triangle
-  1: yellow_rectangle
-  2: yellow_pentagon
-  3: yellow_star
-  4: yellow_circle
-  5: yellow_semicircle
-  6: yellow_quarter circle
-  7: yellow_cross
-  8: white_triangle
-  9: white_rectangle
-  10: white_pentagon
-  11: white_star
-  12: white_circle
-  13: white_semicircle
-  14: white_quarter circle
-  15: white_cross
-  16: black_triangle
-  17: black_rectangle
-  18: black_pentagon
-  19: black_star
-  20: black_circle
-  21: black_semicircle
-  22: black_quarter circle
-  23: black_cross
-  24: red_triangle
-  25: red_rectangle
-  26: red_pentagon
-  27: red_star
-  28: red_circle
-  29: red_semicircle
-  30: red_quarter circle
-  31: red_cross
-  32: blue_triangle
-  33: blue_rectangle
-  34: blue_pentagon
-  35: blue_star
-  36: blue_circle
-  37: blue_semicircle
-  38: blue_quarter circle
-  39: blue_cross
-  40: green_triangle
-  41: green_rectangle
-  42: green_pentagon
-  43: green_star
-  44: green_circle
-  45: green_semicircle
-  46: green_quarter circle
-  47: green_cross
-  48: purple_triangle
-  49: purple_rectangle
-  50: purple_pentagon
-  51: purple_star
-  52: purple_circle
-  53: purple_semicircle
-  54: purple_quarter circle
-  55: purple_cross
-  56: brown_triangle
-  57: brown_rectangle
-  58: brown_pentagon
-  59: brown_star
-  60: brown_circle
-  61: brown_semicircle
-  62: brown_quarter circle
-  63: brown_cross
-  64: orange_triangle
-  65: orange_rectangle
-  66: orange_pentagon
-  67: orange_star
-  68: orange_circle
-  69: orange_semicircle
-  70: orange_quarter circle
-  71: orange_cross
+  0: white_triangle
+  1: white_rectangle
+  2: white_pentagon
+  3: white_star
+  4: white_circle
+  5: white_semicircle
+  6: white_quarter circle
+  7: white_cross
+  8: black_triangle
+  9: black_rectangle
+  10: black_pentagon
+  11: black_star
+  12: black_circle
+  13: black_semicircle
+  14: black_quarter circle
+  15: black_cross
+  16: red_triangle
+  17: red_rectangle
+  18: red_pentagon
+  19: red_star
+  20: red_circle
+  21: red_semicircle
+  22: red_quarter circle
+  23: red_cross
+  24: blue_triangle
+  25: blue_rectangle
+  26: blue_pentagon
+  27: blue_star
+  28: blue_circle
+  29: blue_semicircle
+  30: blue_quarter circle
+  31: blue_cross
+  32: green_triangle
+  33: green_rectangle
+  34: green_pentagon
+  35: green_star
+  36: green_circle
+  37: green_semicircle
+  38: green_quarter circle
+  39: green_cross
+  40: purple_triangle
+  41: purple_rectangle
+  42: purple_pentagon
+  43: purple_star
+  44: purple_circle
+  45: purple_semicircle
+  46: purple_quarter circle
+  47: purple_cross
+  48: brown_triangle
+  49: brown_rectangle
+  50: brown_pentagon
+  51: brown_star
+  52: brown_circle
+  53: brown_semicircle
+  54: brown_quarter circle
+  55: brown_cross
+  56: orange_triangle
+  57: orange_rectangle
+  58: orange_pentagon
+  59: orange_star
+  60: orange_circle
+  61: orange_semicircle
+  62: orange_quarter circle
+  63: orange_cross
+  
