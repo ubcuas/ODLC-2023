@@ -184,6 +184,11 @@ def draw_star(img, coord, size, color):
             (text_bbox[0] + offset, text_bbox[1]),
             (text_bbox[0] + offset + text_bbox[3], text_bbox[1] + text_bbox[3]),
         )
+    else:
+        text_bbox = (
+            (text_bbox[0], text_bbox[1]),
+            (text_bbox[0] + text_bbox[3], text_bbox[1] + text_bbox[3]),
+        )
     object_bbox = find_bbox_from_vertices(img, vertices)
     # Draw the star on the image
     img = cv2.fillPoly(img, vertices, color=color)
