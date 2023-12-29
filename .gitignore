@@ -162,3 +162,5 @@ cython_debug/
 output/
 training_datasets/
 base_model/
+runs/
+backgrounds-resized/
