@@ -3,7 +3,7 @@ import imgaug as ia
 import math
 from imgaug.augmentables.kps import Keypoint, KeypointsOnImage
 
-
+#img, object bbox
 def imageAugmentation(image, bounding_box, image_height, image_width, num_aug_imgs=3, display=False):
     """
     Augments image given the bounding box with the shape and color (bounding_box).
@@ -36,11 +36,11 @@ def imageAugmentation(image, bounding_box, image_height, image_width, num_aug_im
         iaa.Multiply((0.8, 1.2), per_channel=0.2),
     ], random_order=True)
 
-    # convert boudning box into keypoints
-    highest = bounding_box[0][1]
-    lowest = bounding_box[1][1]
-    leftmost = bounding_box[0][0]
-    rightmost = bounding_box[1][0]
+    # convert boudning box into keypoints (vertecies)
+    highest = bounding_box[0][1] #ycoord
+    lowest = bounding_box[1][1] #xcoord
+    leftmost = bounding_box[0][0] #ycoord
+    rightmost = bounding_box[1][0]#xcoord
     key_pts = [
         Keypoint(leftmost, highest),
         Keypoint(rightmost, highest),
@@ -96,17 +96,7 @@ def imageAugmentation(image, bounding_box, image_height, image_width, num_aug_im
         rightmost = 0
 
         # determine highest, lowest, leftmost and rightmost
-        for j in range(4):
-            x_coord = key_pts_on_imgs_aug[i][j].x
-            y_coord = key_pts_on_imgs_aug[i][j].y
-            if x_coord > rightmost:
-                rightmost = x_coord
-            if x_coord < leftmost:
-                leftmost = x_coord
-            if y_coord < highest:
-                highest = y_coord
-            if y_coord > lowest:
-                lowest = y_coord
+        highest,lowest,leftmost,rightmost = sortKeypoints(i,key_pts_on_imgs_aug,highest,lowest,leftmost,rightmost)
         
         # append values to new_label, then to new_labels
         new_label = [(leftmost, highest), (rightmost, lowest)]
@@ -127,3 +117,21 @@ def imageAugmentation(image, bounding_box, image_height, image_width, num_aug_im
         )
 
     return images_aug, new_labels
+
+
+#REFACTOR START
+
+#determine highest, lowest, leftmost and rightmost
+def sortKeypoints(ival,keypts,highest,lowest,leftmost,rightmost):
+    for j in range(4):
+            x_coord = keypts[ival][j].x
+            y_coord = keypts[ival][j].y
+            if x_coord > rightmost:
+                rightmost = x_coord
+            if x_coord < leftmost:
+                leftmost = x_coord
+            if y_coord < highest:
+                highest = y_coord
+            if y_coord > lowest:
+                lowest = y_coord
+    return highest,lowest,leftmost,rightmost
