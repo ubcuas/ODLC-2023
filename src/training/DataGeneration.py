@@ -24,22 +24,24 @@ def check_overlap(coord: tuple[int, int], placed_objs: list[ObjectLabel]):
 
 
 def dataGeneration(bg_path: Path, output_path: Path, num_gen: int):
-    # creates images with different shapes and colors
+    """Creates images with different shapes, colors and letters on it"""
 
+    # settings
     size_min = 30  # size of the shape
     size_max = 55
     background_paths = list(bg_path.glob("*"))
+    num_augimg_per_original = 3
+    max_obj_per_img = 20
+    min_obj_per_img = 15
 
     # initialize directory
     output_path.joinpath("images").mkdir(exist_ok=True, parents=True)
     output_path.joinpath("labels").mkdir(exist_ok=True, parents=True)
 
-    idx = 0
-    num_augimg_per_original = 10
     characters = string.ascii_uppercase
-    max_obj_per_img = 5
     idx = 0
     generated_objs = {}
+    
     # iterating over every background to minimize reading from disk
     for bg in background_paths:
         bg_img = cv2.imread(str(bg))
@@ -47,7 +49,7 @@ def dataGeneration(bg_path: Path, output_path: Path, num_gen: int):
         # use all the background images equally
         for _ in range(int(num_gen / len(background_paths))):
             # pick number of object
-            num_obj = random.randint(1, max_obj_per_img)
+            num_obj = random.randint(min_obj_per_img, max_obj_per_img)
             img = copy.deepcopy(bg_img)
             size = random.randint(size_min, size_max)
             # place each object onto the image
@@ -57,7 +59,6 @@ def dataGeneration(bg_path: Path, output_path: Path, num_gen: int):
                 shape_color = random.choice(cds.colors)
                 text_color = random.choice(cds.colors)
                 while text_color == shape_color:
-                    print("duplicate_color")
                     text_color = random.choice(cds.colors)
                 char = random.choice(characters)
                 coord = (
@@ -65,7 +66,7 @@ def dataGeneration(bg_path: Path, output_path: Path, num_gen: int):
                     random.randint(int(size / 2), np.size(img, 0) - int(size / 2)),
                 )
                 if check_overlap(coord, placed_objs):
-                    print("overlapped")
+                    print("overlapped shapes")
                     continue
                 img, bbox = draw_object(
                     img, shape, coord, size, shape_color[1], text_color[1], char
@@ -84,30 +85,43 @@ def dataGeneration(bg_path: Path, output_path: Path, num_gen: int):
                     generated_objs[obj.name] += 1
                 else:
                     generated_objs[obj.name] = 1
-
-            saveImageAndLabel(
+            
+            # this part is modified so that the images are augmented
+            # ================================================
+            bounding_boxes = []
+            
+            # get the bounding boxes of the shapes
+            for object in placed_objs:
+                bounding_boxes.append([object.pt1, object.pt2])
+                
+            # augmentation
+            aug_imgs, new_bounding_boxes = imageAugmentation(
                 img,
-                output_path,
-                placed_objs,
-                idx,
+                bounding_boxes,
+                bg_img_height,
+                bg_img_width,
+                num_aug_imgs=num_augimg_per_original,
             )
-            idx += 1
-            # aug_imgs, new_bounding_boxes = imageAugmentation(
-            #     img_with_shape,
-            #     bounding_box,
-            #     bg_img_height,
-            #     bg_img_width,
-            #     num_aug_imgs=num_augimg_per_original,
-            # )
-            # for i in range(len(aug_imgs)):
-            #     saveImageAndLabel(
-            #         aug_imgs[i],
-            #         output_path,
-            #         shape,
-            #         shape_color,
-            #         new_bounding_boxes[i],
-            #         idx,
-            #     )
+            
+            # save images
+            for i in range(len(aug_imgs)):
+                saveImageAndLabel(
+                    aug_imgs[i],
+                    output_path,
+                    [ObjectLabel(
+                        new_bounding_boxes[i][j][0],
+                        new_bounding_boxes[i][j][1],
+                        bg_img_width,
+                        bg_img_height,
+                        placed_objs[j].shape,
+                        placed_objs[j].shape_color,
+                        "",
+                    ) for j in range(len(new_bounding_boxes[i]))],
+                    idx,
+                )
+                idx += 1
+            # =============================================
+
     print(generated_objs)
 
 
@@ -116,8 +130,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     output_path = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "./training_datasets/train"
+        os.path.dirname(os.path.realpath(__file__)),
+        # "./training_datasets/train"
+        "./training_datasets/valid"
+        # "../predict/images1"
     )
+    default_amount = 10
     parser.add_argument("-o", "--output", default=output_path)
     input_path = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "./resources/backgrounds"
@@ -132,7 +150,7 @@ if __name__ == "__main__":
         "-a",
         "--amount",
         type=int,
-        default=input_path,
+        default=default_amount,
         help="Amount of image to generate",
     )
     args = parser.parse_args()
