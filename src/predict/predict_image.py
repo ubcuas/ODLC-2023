@@ -31,10 +31,7 @@ class PredictImage:
             y1 = round(r.bbox.miny)
             x2 = round(r.bbox.maxx)
             y2 = round(r.bbox.maxy)
-            print(x1, x2, y1, y2)
-            print(image[y1:y2, x1:x2].shape)
-            letter = self.ocr_model.predict(image[y1:y2, x1:x2])
-            cv2.imwrite(f"tmp/{r.category.name}.jpg", image[y1:y2, x1:x2])
+            letter, conf = self.ocr_model.predict(image[y1:y2, x1:x2])
             results.append(PredictionResult(x1, y1, x2, y2, r.category.name, letter, r.score.value))
         return results
 
