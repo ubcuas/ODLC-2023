@@ -6,6 +6,7 @@ from PIL import Image
 
 class ParseqOCR:
     MODEL_NAME = "parseq"
+    DEVICE = "cuda:0"
 
     def __init__(self, model_name=MODEL_NAME) -> None:
         self._preprocess = T.Compose(
@@ -18,24 +19,51 @@ class ParseqOCR:
         self.model = self._get_model(model_name)
 
     def _get_model(self, name):
-        model = torch.hub.load(
-            "baudm/parseq", name, pretrained=True, trust_repo=True
-        ).eval()
+        model = (
+            torch.hub.load(
+                "baudm/parseq",
+                name,
+                pretrained=True,
+                trust_repo=True,
+            )
+            .eval()
+            .to(self.DEVICE)
+        )
         return model
 
     @torch.inference_mode()
     def predict(self, image: np.array, model_name=MODEL_NAME) -> str:
         """Return the letter with highest confidence in images"""
         image = Image.fromarray(image)
-        image = self._preprocess(image).unsqueeze(0)
+        image = self._preprocess(image).unsqueeze(0).to(self.DEVICE)
         # Greedy decoding
         pred = self.model(image).softmax(-1)
         label, _ = self.model.tokenizer.decode(pred)
         raw_label, raw_confidence = self.model.tokenizer.decode(pred, raw=True)
         # Format confidence values
         max_len = 25 if model_name == "crnn" else len(label[0]) + 1
-        index = torch.argmax(raw_confidence[0][:max_len - 1])
-        return label[0][index], raw_confidence[0][:max_len - 1].tolist()
+        index = torch.argmax(raw_confidence[0][: max_len - 1])
+        return label[0][index], raw_confidence[0][: max_len - 1].tolist()
+
+    def batch_predict(self, images: list[np.array], model_name=MODEL_NAME):
+        images_pil = [Image.fromarray(x) for x in images]
+        images_tensor = torch.empty(len(images), 3, 32, 128, dtype=torch.float)
+        for i, image in enumerate(images_pil):
+            images_tensor[i] = self._preprocess(image)
+        images_tensor = images_tensor.to(self.DEVICE)
+        # Greedy decoding
+        pred = self.model(images_tensor).softmax(-1)
+        label, _ = self.model.tokenizer.decode(pred)
+        raw_label, raw_confidence = self.model.tokenizer.decode(pred, raw=True)
+        # Format confidence values
+        labels = []
+        raw_confidences = []
+        for i in range(len(label)):
+            max_len = 25 if model_name == "crnn" else len(label[i]) + 1
+            index = torch.argmax(raw_confidence[i][: max_len - 1])
+            labels.append(label[i][index])
+            raw_confidences = raw_confidence[i][: max_len - 1].tolist()
+        return (labels, raw_confidences)
 
 
 if __name__ == "__main__":
