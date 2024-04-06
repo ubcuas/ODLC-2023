@@ -4,7 +4,7 @@ class PredictionResult:
             raise Exception("Letter must contain 1 letter")
         self.x1 = x1
         self.y1 = y1
-        self.y2 = y2
+        self.x2 = x2
         self.y2 = y2
         self.shape = shape
         self.letter = letter

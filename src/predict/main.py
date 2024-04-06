@@ -8,6 +8,7 @@ MODEL_PATH = "model-1/weights/best.pt"
 
 
 # TODO: Fetch target data from GCOM
+# TODO: Filter out only valid letter from OCR Model
 TARGETS = ["purple_triangle_A"]
 
 model = PredictImage(MODEL_PATH)
@@ -18,10 +19,10 @@ GPS_COORDINATE = (49.2602703, -123.2516302)
 
 start_t = time.time()
 result = model.predict(frame)
+img = model.visualize(frame, result)
 result_filter.add_prediction(result, GPS_COORDINATE)
 print(time.time() - start_t)
 
-
-# cv2.imwrite("out.jpg", frame)
+cv2.imwrite("out.jpg", frame)
 # cv2.imshow("frame", cv2.resize(frame, (1336, 1002)))
 # cv2.waitKey(0)
