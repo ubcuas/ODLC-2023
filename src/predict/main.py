@@ -4,25 +4,27 @@ from predict_image import PredictImage
 from prediction_filter import PredictionFilter
 
 frame = cv2.imread("test_images/20240302_120243_448-image1.jpg")
-MODEL_PATH = "model-1/weights/best.pt"
+SHAPE_MODEL_PATH = "model/shape-detection-v1/weights/best.pt"
+EMERGENT_MODEL_PATH = "model/emergent-detection-v1/yolov8n.pt"
 
 
 # TODO: Fetch target data from GCOM
 # TODO: Filter out only valid letter from OCR Model
 TARGETS = ["purple_triangle_A"]
 
-model = PredictImage(MODEL_PATH)
+model = PredictImage(SHAPE_MODEL_PATH, EMERGENT_MODEL_PATH)
 result_filter = PredictionFilter(TARGETS)
 
 # TODO: Wrap this in some loop to continously fetch image and GPS coordinate from GCOM
 GPS_COORDINATE = (49.2602703, -123.2516302)
 
 start_t = time.time()
-result = model.predict(frame)
-img = model.visualize(frame, result)
-result_filter.add_prediction(result, GPS_COORDINATE)
+shape_result, emergent_result = model.predict(frame)
+print(emergent_result)
+frame = model.visualize(frame, shape_result, emergent_result)
+result_filter.add_prediction(shape_result, GPS_COORDINATE)
 print(time.time() - start_t)
 
-cv2.imwrite("out.jpg", frame)
+cv2.imwrite("output/out.jpg", frame)
 # cv2.imshow("frame", cv2.resize(frame, (1336, 1002)))
 # cv2.waitKey(0)
