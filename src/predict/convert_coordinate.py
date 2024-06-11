@@ -60,6 +60,18 @@ from pyproj import Geod
 
 
 def pixel_to_gps(pixel_x, pixel_y, heading, speed, longitude, latitude, altitude, telemetry_time, image_time):
+    """
+    @param pixel_x: X-axis coordinate, 0 at left
+    @param pixel_y: Y-axis coordinatem 0 at top
+    @param heading: Azimuth starting at north going clockwise
+    @param speed: Speed in m/s from telemetry data
+    @param longitude: Longitude from telemetry data
+    @param latitude: Latitude from telemetry data
+    @param altitude: Altitude in meters from telemetry data
+    @param telemetry_time: Timestamp of telemetry data
+    @param image_time: Timestamp of image
+    @return: Longitude, latitude of pixel
+    """
     # in pixels
     image_w = 5472
     image_h = 3648
