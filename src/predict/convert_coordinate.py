@@ -61,6 +61,8 @@ from pyproj import Geod
 
 def pixel_to_gps(pixel_x, pixel_y, heading, speed, longitude, latitude, altitude, telemetry_time, image_time):
     """
+    Calculates the GPS location of a pixel
+
     @param pixel_x: X-axis coordinate, 0 at left
     @param pixel_y: Y-axis coordinatem 0 at top
     @param heading: Azimuth starting at north going clockwise
@@ -68,9 +70,9 @@ def pixel_to_gps(pixel_x, pixel_y, heading, speed, longitude, latitude, altitude
     @param longitude: Longitude from telemetry data
     @param latitude: Latitude from telemetry data
     @param altitude: Altitude in meters from telemetry data
-    @param telemetry_time: Timestamp of telemetry data
-    @param image_time: Timestamp of image
-    @return: Longitude, latitude of pixel
+    @param telemetry_time: Timestamp of telemetry data in milliseconds
+    @param image_time: Timestamp of image in milliseconds
+    @return: (Longitude, latitude) of pixel
     """
     # in pixels
     image_w = 5472
@@ -105,7 +107,7 @@ def pixel_to_gps(pixel_x, pixel_y, heading, speed, longitude, latitude, altitude
     dead_reckoning_weight = 1
 
     delta_t = telemetry_time - image_time
-    displacement = delta_t * speed
+    displacement = (delta_t / 1000) * speed
     displacement *= dead_reckoning_weight
 
     geod = Geod(ellps="WGS84")
