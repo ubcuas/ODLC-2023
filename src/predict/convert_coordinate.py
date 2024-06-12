@@ -5,7 +5,9 @@ from pyproj import Geod
 
 def pixel_to_gps(pixel_x, pixel_y, heading, latitude, longitude, altitude):
     """
-    Calculates the GPS location of a pixel
+    Calculates the GPS location of a pixel.
+
+    Assumes level camera pointing down with no lens distortion, flat ground, LUCID PHX-200S Camera, 12mm Lens
 
     @param pixel_x: X-axis coordinate, 0 at left
     @param pixel_y: Y-axis coordinatem 0 at top
@@ -13,7 +15,7 @@ def pixel_to_gps(pixel_x, pixel_y, heading, latitude, longitude, altitude):
     @param longitude: Longitude from telemetry data
     @param latitude: Latitude from telemetry data
     @param altitude: Altitude in meters from telemetry data
-    @return: (Longitude, latitude) of pixel
+    @return: (latitude, longitude) of pixel
     """
     # in pixels
     image_w = 5472
@@ -72,7 +74,7 @@ def add_dead_reckoning(heading, speed, latitude, longitude, telemetry_time, imag
     @param telemetry_time: Timestamp of telemetry data in milliseconds
     @param image_time: Timestamp of image in milliseconds
     @param weight: Strength of dead reckoning estimation
-    @return: Estimated (longitude, latitude)
+    @return: Estimated (latitude, longitude) of camera
     """
     geod = Geod(ellps="WGS84")
 
@@ -101,7 +103,7 @@ def print_gps_corners(heading, latitude, longitude, altitude):
     print(f"{bottom_left[0]}, {bottom_left[1]}")
 
 
-# print_gps_corners(15, 49.260605, -123.245995, 25)
+# print_gps_corners(290, 38.31471488011587, -76.54638594373999, 25)
 
 # print(pixel_to_gps(5000, 2000, -15, 49.260605, -123.245995, 25))
 # def R(theta):
