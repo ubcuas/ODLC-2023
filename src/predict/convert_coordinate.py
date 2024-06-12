@@ -100,7 +100,6 @@ def print_gps_corners(heading, altitude, latitude, longitude):
     print(f"{bottom_right[0]}, {bottom_right[1]}")
     print(f"{bottom_left[0]}, {bottom_left[1]}")
 
-print_gps_corners(20, 30, 49.260605, -123.245995)
 # def R(theta):
 #     """
 #     Rotation matrix of theta degrees counterclockwise.
