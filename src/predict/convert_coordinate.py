@@ -47,7 +47,7 @@ def pixel_to_gps(pixel_x, pixel_y, heading, latitude, longitude, altitude):
     dist_x /= 100
     dist_y /= 100
 
-    # rotate point according to heading
+    # rotate point clockwise according to heading
     heading_rad = heading * np.pi / 180
     rotation_matrix = np.array(
         [[np.cos(heading_rad), np.sin(heading_rad)],
@@ -55,7 +55,7 @@ def pixel_to_gps(pixel_x, pixel_y, heading, latitude, longitude, altitude):
     )
     dist_east, dist_north = rotation_matrix @ [[dist_x], [dist_y]]
 
-    # add distances to current gps
+    # add longitudinal and latitudinal distances to current gps
     geod = Geod(ellps="WGS84")
     longitude, latitude, _ = geod.fwd(lons=longitude, lats=latitude, az=90, dist=dist_east)
     longitude, latitude, _ = geod.fwd(lons=longitude, lats=latitude, az=0, dist=dist_north)
