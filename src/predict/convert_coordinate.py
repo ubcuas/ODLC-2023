@@ -82,14 +82,14 @@ def add_dead_reckoning(heading, speed, latitude, longitude, telemetry_time, imag
     longitude, latitude, _ = geod.fwd(lons=longitude, lats=latitude, az=heading, dist=displacement)
 
 
-def print_gps_corners(heading, altitude, latitude, longitude):
+def print_gps_corners(heading, latitude, longitude, altitude):
     """
     Prints GPS positions of the corners of the area covered by camera
 
     @param heading: Azimuth starting at north going clockwise
-    @param altitude: Altitude in meters from telemetry data
     @param latitude: Latitude from telemetry data
     @param longitude: Longitude from telemetry data
+    @param altitude: Altitude in meters from telemetry data
     """
     top_left = pixel_to_gps(0, 0, heading, latitude, longitude, altitude)
     top_right = pixel_to_gps(5472, 0, heading, latitude, longitude, altitude)
@@ -100,6 +100,10 @@ def print_gps_corners(heading, altitude, latitude, longitude):
     print(f"{bottom_right[0]}, {bottom_right[1]}")
     print(f"{bottom_left[0]}, {bottom_left[1]}")
 
+
+# print_gps_corners(15, 49.260605, -123.245995, 25)
+
+# print(pixel_to_gps(5000, 2000, -15, 49.260605, -123.245995, 25))
 # def R(theta):
 #     """
 #     Rotation matrix of theta degrees counterclockwise.
