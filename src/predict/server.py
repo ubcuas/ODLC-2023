@@ -4,6 +4,7 @@ import os
 import glob
 import requests
 import shutil
+from convert_coordinate import pixel_to_gps
 
 print("program started")
 
@@ -17,10 +18,12 @@ num_epochs = 50
 model_type = "m"
 
 # file paths
-path_dataset = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./training/training_datasets/data.yaml")
-path_weights = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../runs/detect/train/weights/best.pt")
-path_predict_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./predict/live_feed_new")
-path_old_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./predict/live_feed_old")
+path_dataset = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../training/training_datasets/data.yaml")
+path_weights = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../runs/detect/train/weights/best.pt")
+path_predict_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./live_feed_new")
+path_old_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./live_feed_old")
+
+last_label = None
 
 labels = {
     0: 'white_triangle', 1: 'white_rectangle', 2: 'white_pentagon', 3: 'white_star', 4: 'white_circle', 
@@ -41,20 +44,50 @@ labels = {
 }
 
 # List of labels to trigger the HTTP request
-trigger_labels = ['red_circle', 'blue_triangle', 'black_pentagon']  # Example list of labels
+trigger_labels = list(labels.values())  # Example list of labels
+print("trigger_labels: ", trigger_labels)
+parsed_files = set()
 
 def get_latest_file(directory):
-    """Get the latest file from the directory"""
-    list_of_files = glob.glob(os.path.join(directory, '*')) # * means all files
+    """Get the latest file from the directory that's not in parsed_files"""
+    # * means all files
+    global parsed_files
+    list_of_files = [file for file in glob.glob(os.path.join(directory, '*')) if file not in parsed_files]
+    
     if not list_of_files:
         return None
+    
     latest_file = max(list_of_files, key=os.path.getctime)
+    parsed_files.add(latest_file)
     return latest_file
 
-def send_http_request():
+def get_status():
+    # UPDATE THIS
+    url = "http://192.168.1.65:9000/status"
+    headers = {'Content-Type': 'application/json'}
+    response = None
+    try:
+        response = requests.get(url, headers=headers)
+    except requests.exceptions.ConnectionError:
+        print("Failed to GET STATUS HTTP request! Connection refused.")
+    if response != None and response.status_code == 200:
+        print("HTTP request sent successfully!")
+        print("Response: ", response.json())
+        return response.json()["latitude"], response.json()["longitude"], response.json()["altitude"]
+    else:
+        print(f"Failed to send HTTP GET STATUS request! Response: {response}")
+
+
+def send_http_request(lat, lon, file_name):
     """Send HTTP POST request to localhost:1323"""
     url = "http://localhost:1323/odlc-found"
-    payload = {'found': 'true'}
+    file_name_int = int(file_name)
+    timestamp = file_name_int
+    if len(str(file_name_int)) == 13:
+        timestamp = file_name_int // 1000
+        
+    payload = {'latitude': lat, 'longitude': lon, 'timestamp': timestamp}
+    print("SENDING OBJECT", payload)
     headers = {'Content-Type': 'application/json'}
     response = None
     try:
@@ -80,7 +113,10 @@ def main():
 
         while True:
             latest_file = get_latest_file(path_predict_dir)
+
             if latest_file:
+                filename = os.path.basename(latest_file)
+                print("USING FILE NAME: ", filename)
                 # predict
                 results = model(
                     source=latest_file,
@@ -103,23 +139,25 @@ def main():
                     augment=False  # test-time augmentation
                 )
                 bboxes = results[0].boxes
+
                 print(bboxes.data)
 
                 # Check if any trigger label is detected and send HTTP request
                 for bbox in bboxes:
                     class_index = int(bbox.cls[0])
                     label = labels.get(class_index, "Unknown")
-                    if label in trigger_labels:
-                        send_http_request()
+                    global last_label
+                    if label in trigger_labels and label != last_label:
+                        last_label = None
+                        x1, y1, x2, y2 = bbox.xyxy[0] # pixel coordinates
+                        lat, lon, alt = get_status()
+                        target_lat, target_long = pixel_to_gps((x2 - x1)/2 + x1, (y2 - y1)/2 + y1, 0, lat, lon, alt)
+                        print(target_lat, target_long)
+                        send_http_request(target_lat, target_long, filename[:-4])
 
 
-                # Move the processed file to the old directory
-                if not os.path.exists(path_old_dir):
-                    os.makedirs(path_old_dir)
-                shutil.move(latest_file, path_old_dir)
 
             # Sleep for a specified duration (e.g., 60 seconds) before checking again
-            time.sleep(10)
 
 if __name__ == "__main__":
     main()
