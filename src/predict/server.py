@@ -63,7 +63,7 @@ def get_latest_file(directory):
 
 def get_status():
     # UPDATE THIS
-    url = "http://192.168.1.65:9000/status"
+    url = "http://10.42.0.51:9000/status"
     headers = {'Content-Type': 'application/json'}
     response = None
     try:
@@ -78,7 +78,7 @@ def get_status():
         print(f"Failed to send HTTP GET STATUS request! Response: {response}")
 
 
-def send_http_request(lat, lon, file_name):
+def send_http_request(lat, lon, file_name, icon):
     """Send HTTP POST request to localhost:1323"""
     url = "http://localhost:1323/odlc-found"
     file_name_int = int(file_name)
@@ -86,7 +86,7 @@ def send_http_request(lat, lon, file_name):
     if len(str(file_name_int)) == 13:
         timestamp = file_name_int // 1000
         
-    payload = {'latitude': lat, 'longitude': lon, 'timestamp': timestamp}
+    payload = {'latitude': lat, 'longitude': lon, 'timestamp': timestamp, 'icon': icon}
     print("SENDING OBJECT", payload)
     headers = {'Content-Type': 'application/json'}
     response = None
@@ -153,7 +153,7 @@ def main():
                         lat, lon, alt = get_status()
                         target_lat, target_long = pixel_to_gps((x2 - x1)/2 + x1, (y2 - y1)/2 + y1, 0, lat, lon, alt)
                         print(target_lat, target_long)
-                        send_http_request(target_lat, target_long, filename[:-4])
+                        send_http_request(target_lat, target_long, filename[:-4], label)
 
 
 
