@@ -55,7 +55,3 @@ class DetectionModel:
 
 
 
-##TESTING PURPOSES ONLY
-model = DetectionModel('./yolo11s.pt')
-results = model.predict("./datasets/coco8/images/val/000000000036.jpg")
-print(results)
